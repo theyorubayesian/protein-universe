@@ -13,9 +13,9 @@ from torch.nn.utils.rnn import pad_sequence
 from torch.utils.data import Dataset
 from torch.utils.data import Sampler
 
-from constants import ACID_MAP
-from constants import ACID_MAP_INV
-from constants import PADDING_VALUE
+from universe.constants import ACID_MAP
+from universe.constants import ACID_MAP_INV
+from universe.constants import PADDING_VALUE
 
 logging.basicConfig(
     format="%(asctime)s - %(levelname)s - %(name)s - PID: %(process)d -  %(message)s",
