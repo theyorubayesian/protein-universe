@@ -1,3 +1,8 @@
+"""
+Written by: Akintunde 'theyorubayesian' Oladipo
+14/Nov/2021
+"""
+
 # X, U, B, O and Z are mapped to 0
 ACID_MAP = {
     "L": 1, "A": 2, "V": 3, "G": 4, 
@@ -10,3 +15,5 @@ ACID_MAP = {
 ACID_MAP_INV = {v: k for k, v in ACID_MAP.items()}
 
 PADDING_VALUE = 21
+
+VOCAB_SIZE = 22

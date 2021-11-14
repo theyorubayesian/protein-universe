@@ -1,5 +1,6 @@
 """
-
+Written by: Akintunde 'theyorubayesian' Oladipo
+14/Nov/2021
 """
 import glob
 import logging
@@ -11,6 +12,7 @@ import torch
 from pandas import DataFrame
 from torch.nn.utils.rnn import pad_sequence
 from torch.utils.data import Dataset
+from torch.utils.data import DataLoader
 from torch.utils.data import Sampler
 
 from universe.constants import ACID_MAP
@@ -43,11 +45,12 @@ class PfamDataset(Dataset):
     def __init__(
         self, df: pd.DataFrame, 
         overwrite_cache: bool = False, 
-        cache_dir: str = "data/cache", 
-        split_name: str = ''
+        cache_dir: str = "data/cache",
+        split_name: str = '',
+        num_classes: int = 500
     ):
         os.makedirs(cache_dir, exist_ok=True)
-        cached_features_file = os.path.join(cache_dir, f"cached_dataset_{split_name}")
+        cached_features_file = os.path.join(cache_dir, f"cached_dataset_{num_classes}_{split_name}")
 
         if os.path.exists(cached_features_file) and not overwrite_cache:
             logger.info(f"Loading features from cached file: {cached_features_file}")
@@ -78,7 +81,8 @@ class PfamDataset(Dataset):
     def __getitem__(self, idx):
         return {
             "sequence": self._sequences[idx],
-            "label": self._labels[idx]
+            "label": self._labels[idx],
+            "length": len(self._sequences[idx])
         }
 
     @staticmethod
@@ -89,8 +93,18 @@ class PfamDataset(Dataset):
             batch_first=True, padding_value=PADDING_VALUE
             )
         labels = torch.tensor([f["label"] for f in features])
+        lengths = torch.tensor([f["length"] for f in features])
 
-        return input_ids, labels
+        return input_ids, labels, lengths
+
+
+def create_dataloader(data_path, overwrite_cache, num_classes, split_name, batch_size, shuffle):
+    df = pd.read_csv(data_path)
+    dataset = PfamDataset(df, overwrite_cache, num_classes=num_classes, split_name=split_name)
+    dataloader = DataLoader(
+        dataset, batch_size=batch_size, shuffle=shuffle, collate_fn=PfamDataset.collate
+        )
+    return dataloader
 
 
 class LengthSampler(Sampler):
