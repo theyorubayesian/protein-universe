@@ -1,6 +1,6 @@
 from torch import nn
 
-from constants import PADDING_VALUE
+from universe.constants import PADDING_VALUE
 
 
 class BiLSTM(nn.Module):
