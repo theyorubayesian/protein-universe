@@ -41,6 +41,27 @@ def create_dataset_from_files(split: str, data_dir: str) -> DataFrame:
     return df
 
 
+def create_dataset_for_training(data_dir, num_families):
+    """
+    Choose number of families to retain in dataset for training
+    """
+    dataset = {
+        x: create_dataset_from_files(x, data_dir) for x in ["train", "dev", "test"]
+    }
+    train, dev, test = dataset["train"], dataset["dev"], dataset["test"]
+    
+    families = train["family_accession"].value_counts()[:num_families].index.tolist()
+
+    new_train = train.query("family_accession in @families").reset_index()
+    new_test = test.query("family_accession in @families").reset_index()
+    new_dev = dev.query("family_accession in @families").reset_index()
+
+    os.makedirs(f"data/processed/{num_families}", exist_ok=True)
+    new_train.to_csv(f"data/processed/{num_families}/train.csv", index=False)
+    new_dev.to_csv(f"data/processed/{num_families}/dev.csv", index=False)
+    new_test.to_csv(f"data/processed/{num_families}/test.csv", index=False)
+
+
 class PfamDataset(Dataset):
     def __init__(
         self, df: pd.DataFrame, 

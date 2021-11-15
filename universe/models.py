@@ -20,7 +20,7 @@ class BiLSTM(nn.Module):
         super(BiLSTM, self).__init__()
         self.hidden_size = hidden_size
         self.num_layers = num_layers
-        self.embedding = nn.Embedding(vocab_size, hidden_size, padding_idx=PADDING_VALUE)
+        self.embedding = nn.Embedding(vocab_size, embedding_size, padding_idx=PADDING_VALUE)
         self.lstm = nn.LSTM(
             embedding_size,
             hidden_size, 

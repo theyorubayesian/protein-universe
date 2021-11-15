@@ -15,6 +15,7 @@ from torch.optim.lr_scheduler import ReduceLROnPlateau
 
 from universe.constants import VOCAB_SIZE
 from universe.dataset import create_dataloader
+from universe.dataset import create_dataset_for_training
 from universe.models import BiLSTM
 from universe.train import train_lstm
 
@@ -41,13 +42,15 @@ def main():
     parser.add_argument("--train_batch_size", type=int, default=64)
     parser.add_argument("--val_batch_size", type=int, default=512)
     parser.add_argument("--num_classes", type=int, default=300)
-    
+    parser.add_argument("--create_dataset", action="store_true")
+    parser.add_argument("--data_dir", default="data")
+
     # -----
     # Model
     # -----
     parser.add_argument("--model_type")
-    parser.add_argument("--lstm_num_layers", type=int, default=2)
-    parser.add_argument("--lstm_hidden_size", type=int, default=128)
+    parser.add_argument("--lstm_num_layers", type=int, default=3)
+    parser.add_argument("--lstm_hidden_size", type=int, default=256)
     parser.add_argument("--lstm_embedding_dim", type=int, default=128)
 
     # --------
@@ -76,7 +79,13 @@ def main():
         source_files=[]
     )
     logging_client["parameters"] = vars(args)
-    
+
+    # if args.create_dataset:
+    create_dataset_for_training(args.data_dir, args.num_classes)
+    args.train_data = f"{args.data_dir}/processed/{args.num_classes}/train.csv"
+    args.val_data = f"{args.data_dir}/processed/{args.num_classes}/dev.csv"
+    args.test_data = f"{args.data_dir}/processed/{args.num_classes}/test.csv"
+
     train_dataloader = create_dataloader(
         args.train_data, 
         args.overwrite_data_cache, 

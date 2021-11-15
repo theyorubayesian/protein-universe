@@ -76,7 +76,7 @@ def train_lstm(
             global_step += 1
 
             optimizer.step()
-            # print(global_step)
+            
             if global_step % args.logging_interval == 0:
                 logging_client["losses/loss"].log(last_loss)
                 logging_client["losses/cum_avg_loss_epoch"].log(total_loss_epoch / epoch_step)
@@ -97,7 +97,7 @@ def train_lstm(
         logging_client["losses/validation_loss"].log(valid_loss)
 
         scheduler.step(valid_loss)
-        logging_client["learning_rate"].log(scheduler.get_last_lr())
+        logging_client["learning_rate"].log(optimizer.param_groups[0]["lr"])
         model.train()
 
         if best_valid_loss > valid_loss:
@@ -107,7 +107,7 @@ def train_lstm(
                 )
             os.makedirs(output_dir, exist_ok=True)
             save_checkpoint(
-                epoch, epoch_step, model, optimizer, os.path.join(output_dir, "model.pt"), valid_loss
+                epoch, epoch_step, model, optimizer, output_dir, valid_loss
             )
         
         logging_client["losses/epoch_loss"].log(total_loss_epoch/len(train_dataloader))
